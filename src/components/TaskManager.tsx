@@ -3,7 +3,7 @@ import { useState } from "react";
 import "./TaskManager.css";
 
 // TODO: create custom hook to manage task state
-export const TaskManager = () => {
+export const TaskManager = (): React.JSX.Element => {
     interface Task {
         id: string;
         title: string;
@@ -12,16 +12,31 @@ export const TaskManager = () => {
         title: string;
     }
 
-    const [title, setTitle] = useState<string>("");
-    const [searchKeyword, setSearchKeyword] = useState<String>("");
-    const [tasks, setTasks] = useState<Array<Task>>([]);
+    // custom hook
+    interface TaskManagerHook {
+        title: string,
+        setTitle: React.Dispatch<React.SetStateAction<string>>,
+        tasks: Task[],
+        setTasks: React.Dispatch<React.SetStateAction<Task[]>>,
+        searchKeyword: string,
+        setSearchKeyword: React.Dispatch<React.SetStateAction<string>>
+    }
+    const useTaskManager = (): TaskManagerHook => {
+        const [title, setTitle] = useState<string>("");
+        const [searchKeyword, setSearchKeyword] = useState<string>("");
+        const [tasks, setTasks] = useState<Task[]>([]);
+
+        return {title, setTitle, tasks, setTasks, searchKeyword, setSearchKeyword};
+    }
+
+    const {title, setTitle, tasks, setTasks, searchKeyword, setSearchKeyword} = useTaskManager();
 
     // remove task from list
-    const completeTask = (id: string) => {
+    const completeTask = (id: string): void => {
         setTasks(tasks.filter((task: Task) => task.id !== id));
     };
 
-    const updateTask = (id: string, taskUpdate: TaskUpdate) => {
+    const updateTask = (id: string, taskUpdate: TaskUpdate): void => {
         const newTasks: Array<Task> = tasks.slice();
 
         const index: number = tasks.findIndex((task: Task) => task.id === id);
@@ -34,7 +49,7 @@ export const TaskManager = () => {
         setTasks(newTasks);
     };
 
-    const addTask = () => {
+    const addTask = (): void => {
         if (title.length < 1) {
             return;
         }
@@ -48,11 +63,11 @@ export const TaskManager = () => {
         setTitle("");
     };
 
-    const handleSearch = (ev: React.ChangeEvent<HTMLInputElement>) => {
+    const handleSearch = (ev: React.ChangeEvent<HTMLInputElement>): void => {
         setSearchKeyword(ev.target.value);
     };
 
-    const filteredTasks = tasks.filter((task: Task) =>
+    const filteredTasks = tasks.filter((task: Task): boolean =>
         task.title.toLowerCase().includes(searchKeyword.toLowerCase()),
     );
 
